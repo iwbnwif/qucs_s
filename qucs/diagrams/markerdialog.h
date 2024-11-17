@@ -41,6 +41,7 @@ public:
   QLineEdit  *XPosition;
   QComboBox  *IndicatorBox;
   QLineEdit  *SourceImpedance;
+  QComboBox  *DeltaBox;
   QCheckBox  *TransBox;
 };
 

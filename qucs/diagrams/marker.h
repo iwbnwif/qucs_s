@@ -71,6 +71,8 @@ public: // power matching stuff. some sort of VarPos (ab?)use
 
 // private: // not yet
   Graph const *pGraph;   // the corresponding graph
+  QString Name;
+  QString DeltaToName;
 
 private:
   std::vector<double> VarPos;   // values the marker is pointing to

@@ -64,6 +64,11 @@ Marker::Marker(Graph *pg_, int branchNo, int cx_, int cy_) :
   cy = -cy_;
   fCX = float(cx);
   fCY = float(cy);
+
+  Name = QString("M%1").arg(pGraph->Markers.count() + 1);
+
+  qDebug() << "New marker " << Name;
+
   if(!pGraph){
     makeInvalid();
   }else{
@@ -172,6 +177,7 @@ void Marker::initText(int n)
  */
 void Marker::createText()
 {
+  qDebug() << "Updating marker text";
   if(!(pGraph->cPointsY)) {
     makeInvalid();
     return;
@@ -191,7 +197,7 @@ void Marker::createText()
   }
 
   // independent variables
-  Text = "";
+  Text = Name + "\n";
   double *pp;
   nVarPos = pGraph->numAxes();
   DataX const *pD;
@@ -246,9 +252,14 @@ void Marker::createText()
       if (engNotation) {
           Text += misc::num2str(val,Precision) + "\n";
       } else {
-          Text += QString::number(val,'g',Precision);
+          Text += QString::number(val,'g',Precision) + "\n";
       }
   }
+
+  if (DeltaToName != "None") {
+    Text += QString("Δ%1\n").arg(DeltaToName);
+  }
+  
 
   assert(diag());
   Text += diag()->extraMarkerText(this);
@@ -424,10 +435,10 @@ void Marker::paint(QPainter* painter) {
     painter->eraseRect(text_box);
   }
 
-  painter->setPen(QPen(Qt::black, 1));
+  painter->setPen(QPen(Qt::black, 1.0));
   painter->drawText(x1, y1, 1, 1, Qt::TextDontClip, Text);
 
-  painter->setPen(QPen(Qt::darkMagenta, 0));
+  painter->setPen(QPen(Qt::darkMagenta, 1.0));
   painter->drawRect(text_box);
 
   // `cy` is inverted because painter's Y-axis grows downwards but marker's `cy`

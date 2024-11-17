@@ -33,6 +33,13 @@ MarkerDialog::MarkerDialog(Marker *pm_, QWidget *parent)
   setWindowTitle(tr("Edit Marker Properties"));
   pMarker = pm_;
 
+  // Q_ASSERT(pMarker->graph());
+  // for (auto marker : pMarker->graph()->Markers) {
+  //   qDebug() << marker->Name;
+  //   qDebug() << pMarker->graph()->axisName(0) << " " << pMarker->graph()->Var << " " << marker->Text;
+  //   qDebug() << "Num axis: " << pMarker->graph()->numAxes();
+  // }
+
   QGridLayout *g = new QGridLayout;
 
   Precision = new QLineEdit();
@@ -73,8 +80,7 @@ MarkerDialog::MarkerDialog(Marker *pm_, QWidget *parent)
   IndicatorBox->addItem(tr("Triangle"));
   IndicatorBox->setCurrentIndex(pMarker->indicatorMode);
 
-  QLabel *lblIndicator = new QLabel(tr("Marker Indicator"));
-  g->addWidget(lblIndicator, 3, 0);
+  g->addWidget(new QLabel(tr("Marker Indicator")), 3, 0);
   g->addWidget(IndicatorBox, 3, 1);
 
   assert(pMarker->diag());
@@ -88,10 +94,23 @@ MarkerDialog::MarkerDialog(Marker *pm_, QWidget *parent)
       g->addWidget(new QLabel(tr("Z0: ")), 4, 0);
       g->addWidget(SourceImpedance, 4, 1);
   }
-  
-  TransBox = new QCheckBox(tr("transparent"));
+ 
+  TransBox = new QCheckBox();
   TransBox->setChecked(pMarker->transparent);
-  g->addWidget(TransBox, 5, 0);
+  g->addWidget(new QLabel(tr("Transparent")), 5, 0);
+  g->addWidget(TransBox, 5, 1);
+
+  // Add a list of names that this marker can show a delta to.
+  QStringList markerNames = {"None"};
+  for (auto marker : pMarker->graph()->Markers) {
+    if (marker->Name != pMarker->Name) {
+      markerNames.append(marker->Name);
+    }
+  }
+  DeltaBox = new QComboBox();
+  DeltaBox->addItems(markerNames);
+  g->addWidget(new QLabel(tr("Show Δ to:")), 6, 0);
+  g->addWidget(DeltaBox, 6, 1);
 
   // first => activated by pressing RETURN
   QPushButton *ButtOK = new QPushButton(tr("OK"));
@@ -104,7 +123,7 @@ MarkerDialog::MarkerDialog(Marker *pm_, QWidget *parent)
   b->setSpacing(5);
   b->addWidget(ButtOK);
   b->addWidget(ButtCancel);
-  g->addLayout(b,5,0,1,2);
+  g->addLayout(b, 7, 0, 1, 2);
 
   this->setLayout(g);
 }
@@ -150,6 +169,12 @@ void MarkerDialog::slotAcceptValues()
       (pMarker->varPos().size() > 0)) {
       pMarker->setPos(XPosition->text().toDouble());
       changed = true;
+  }
+
+  if (pMarker->DeltaToName != DeltaBox->currentText())
+  {
+    pMarker->DeltaToName = DeltaBox->currentText();
+    changed = true;
   }
 
   if(changed) {
